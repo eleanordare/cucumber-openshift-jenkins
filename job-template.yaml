@@ -1,0 +1,45 @@
+apiVersion: v1
+kind: Template
+metadata:
+  name: cucumber-test-suite
+objects:
+- apiVersion: batch/v1
+  kind: Job
+  metadata:
+    name: cucumber-test-suite
+  spec:
+    completions: 1
+    parallelism: 1
+    template:
+      metadata:
+        name: cucumber-test-suite
+      spec:
+        containers:
+        - name: cucumber-test-suite
+          image: ${IMAGE}
+          command:
+          - /tmp/src/infrastructure/runjob.sh
+          args:
+          - ${JENKINS_PIPELINE_RETURN_URL}
+          - ${USER_NAME}
+          - ${PASSWORD}
+          imagePullPolicy: Always
+          resources: {}
+          terminationMessagePath: /dev/termination-log
+        dnsPolicy: ClusterFirst
+        restartPolicy: Never
+        securityContext: {}
+        terminationGracePeriodSeconds: 30
+parameters:
+- description: Image to pull
+  name: IMAGE
+  required: true
+- description: Jenkins Pipeline return URL for JMeter results files
+  name: JENKINS_PIPELINE_RETURN_URL
+  required: true
+- description: Jenkins username for curl command
+  name: USER_NAME
+  required: true
+- description: Jenkins password for curl command
+  name: PASSWORD
+  required: true

@@ -1,0 +1,35 @@
+apiVersion: v1
+kind: BuildConfig
+metadata:
+  name: cucumber-test-suite
+spec:
+  output:
+    to:
+      kind: ImageStreamTag
+      name: cucumber-test-suite:latest
+  postCommit: {}
+  resources: {}
+  runPolicy: Serial
+  source:
+    git:
+      ref: master
+      uri: <GitHub repo URL>
+    sourceSecret:
+      name: gitsecret
+    type: Git
+    contextDir: /
+  strategy:
+    type: Docker
+    dockerStrategy:
+      from:
+        kind: "ImageStreamTag"
+        name: "fabric8/s2i-java:latest"
+    type: Docker
+  triggers:
+  - github:
+      secret: 1802aa5420b11b2c
+    type: GitHub
+  - imageChange: {}
+    type: ImageChange
+status:
+  lastVersion: 0
