@@ -19,9 +19,9 @@ node('jenkins-agent'){
   jenkinsPass = ""    // Set API token for Jenkins
 
   // Set location of OpenShift objects in workspace
-  buildConfigPath = "${workspace}/${gitName}/ocp/build-config.yaml"
-  imageStreamPath = "${workspace}/${gitName}/ocp/image-stream.yaml"
-  jobTemplatePath = "${workspace}/${gitName}/ocp/job-template.yaml"
+  buildConfigPath = "${workspace}/${gitName}/build-config.yaml"
+  imageStreamPath = "${workspace}/${gitName}/image-stream.yaml"
+  jobTemplatePath = "${workspace}/${gitName}/job-template.yaml"
 
   project = ""    // Set the OpenShift project you're working in
   testSuiteName = "cucumber-test-suite"   // Name of the job/build/imagestream
@@ -29,7 +29,8 @@ node('jenkins-agent'){
   // Login to the OpenShift cluster
   sh """
       set +x
-      oc login --insecure-skip-tls-verify=true --token=${authToken} ${apiURL}
+      oc login --insecure-skip-tls-verify=true \
+        --token=${authToken} ${apiURL}
   """
 
   // Checkout the test suite repo into your Jenkins agent workspace
@@ -54,7 +55,8 @@ node('jenkins-agent'){
   // Get test suite image from correct cluster & project
   String imageURL = sh (
     script:"""
-      oc get is/${testSuiteName} -n ${project} --output=jsonpath={.status.dockerImageRepository}
+      oc get is/${testSuiteName} -n ${project} \
+        --output=jsonpath={.status.dockerImageRepository}
       """,
     returnStdout: true
   )
@@ -128,7 +130,8 @@ node('jenkins-agent'){
 
     // Create an input step that will be called by the test suite job
     // This will let Jenkins know that it's time to retrieve the Cucumber results
-    print "Please don't click Proceed. The OpenShift pod will call Jenkins when the tests have completed."
+    print "Please don't click Proceed."
+    print "The OpenShift pod will call Jenkins when the tests have completed."
     input id: "Cucumber", message: "Waiting for testing to finish..."
 
     // Copy the results folder from the test suite pod to the Jenkins agent
